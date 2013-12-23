@@ -3,10 +3,13 @@
 class AUIAppHeader extends CWidget
 {
 	/**
+	 * @var array Menu items located before logo
+	 */
+	public $beforeItems = array();
+	/**
 	 * @var string logo HTML
 	 */
 	public $logo;
-
 	/**
 	 * @var array Left-aligned menu items
 	 */
@@ -23,6 +26,10 @@ class AUIAppHeader extends CWidget
 	 * @var array various HTML attributes for "header" tag
 	 */
 	public $htmlOptions = array();
+	/**
+	 * @var string CSS class used for 'nav' tag
+	 */
+	protected $navigationCssClass = 'aui-header aui-dropdown2-trigger-group';
 
 
 	public function run()
@@ -57,14 +64,31 @@ class AUIAppHeader extends CWidget
 	protected function renderNavigation()
 	{
 		$navOptions = array(
-			'class' => 'aui-header aui-dropdown2-trigger-group',
+			'class' => $this->navigationCssClass,
 			'role' => 'navigation'
 		);
 
 		return CHtml::tag(
 			'nav',
 			$navOptions,
-			$this->renderLeftNavigation() . $this->renderRightNavigation()
+			$this->renderBeforeNavigation() . $this->renderLeftNavigation() . $this->renderRightNavigation()
+		);
+	}
+
+	/**
+	 * Render "before logo" navigation
+	 *
+	 * @return string
+	 */
+	protected function renderBeforeNavigation()
+	{
+		if (!$this->beforeItems)
+			return '';
+
+		return CHtml::tag(
+			'div',
+			array(),
+			$this->renderNavItems($this->beforeItems)
 		);
 	}
 
@@ -108,7 +132,9 @@ class AUIAppHeader extends CWidget
 			'class' => 'aui-header-logo aui-header-logo-aui'
 		);
 
-		return $this->logo ? CHtml::tag('h1', $logoOptions, $this->logo) : '';
+		return $this->logo ?
+				CHtml::tag('h1', $logoOptions, $this->logo) :
+				'';
 	}
 
 	/**
@@ -149,7 +175,7 @@ class AUIAppHeader extends CWidget
 		foreach ($items as $item)
 			$navItems .= $this->renderNavItem($item);
 
-		return CHtml::tag('ul', [ 'class' => 'aui-nav' ], $navItems);
+		return CHtml::tag('ul', array('class' => 'aui-nav'), $navItems);
 	}
 
 	/**
@@ -160,16 +186,15 @@ class AUIAppHeader extends CWidget
 	 */
 	protected function renderNavItem($item)
 	{
-		$itemRendered = $item;
-
 		if (is_array($item)) {
 			if (!isset($item['id']))
 				$item['id'] = $this->generateItemId();
 
 			$itemRendered = $this->renderNavItemLink($item) . $this->renderNavItemDropdown($item);
-		}
+		} else
+			$itemRendered = $item;
 
-		return CHtml::tag('li', [], $itemRendered);
+		return CHtml::tag('li', array(), $itemRendered);
 	}
 
 	/**
@@ -180,20 +205,22 @@ class AUIAppHeader extends CWidget
 	 */
 	protected function renderNavItemLink($item)
 	{
-		$options = [];
+		$options = isset($item['htmlOptions']) ? $item['htmlOptions'] : array();
+
 		$url = isset($item['url']) ? $item['url'] : '';
 		$label = isset($item['label']) ? $item['label'] : '';
 
 		if (isset($item['items']) && $item['items']) {
 			$options = array_merge(
 				$options,
-				[
-					'class' => 'aui-dropdown2-trigger',
+				array(
 					'aria-owns' => $item['id'],
 					'aria-haspopup' => true,
 					'aria-controls' => $item['id'],
-				]
+				)
 			);
+
+			$options['class'] = 'aui-dropdown2-trigger' . (isset($options['class']) ? ' '.$options['class'] : '');
 		}
 
 		return CHtml::link($label, $url, $options);
