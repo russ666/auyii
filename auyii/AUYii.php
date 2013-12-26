@@ -16,6 +16,7 @@ class AUYii extends CApplicationComponent
 		'button' => 'AUIButton',
 		'dropDown' => 'AUIDropdown',
 		'gridView' => 'AUIGridView',
+        'horizontalNav' => 'AUIHorizontalNav',
 		'icon' => 'AUIIcon',
 		'label' => 'AUILabel',
 		'lozenge' => 'AUILozenge',
