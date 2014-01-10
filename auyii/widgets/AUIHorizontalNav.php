@@ -111,12 +111,12 @@ class AUIHorizontalNav extends CWidget
 		if ($this->isItemActive($item))
 			$itemOptions['class'] = 'aui-nav-selected';
 
-        $options = isset($item['htmlOptions']) ? $item['htmlOptions'] : array();
+        $linkOptions = isset($item['htmlOptions']) ? $item['htmlOptions'] : array();
 
 		return CHtml::tag(
 			'li',
 			$itemOptions,
-			CHtml::link($item['label'], $item['url'], $options)
+			CHtml::link($item['label'], $item['url'], $linkOptions)
 		);
 	}
 
