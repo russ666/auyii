@@ -14,8 +14,10 @@ class AUYii extends CApplicationComponent
 		'avatar' => 'AUIAvatar',
 		'badge' => 'AUIBadge',
 		'button' => 'AUIButton',
+		'dialog2' => 'AUIDialog2',
 		'dropDown' => 'AUIDropdown',
 		'gridView' => 'AUIGridView',
+        'horizontalNav' => 'AUIHorizontalNav',
 		'icon' => 'AUIIcon',
 		'label' => 'AUILabel',
 		'lozenge' => 'AUILozenge',
@@ -25,6 +27,7 @@ class AUYii extends CApplicationComponent
 	);
 
 	public $components;
+
 
 	public function init()
 	{
