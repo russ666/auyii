@@ -116,7 +116,7 @@ class AUIButton extends CWidget
 		$options = $this->getOptions();
 		$options['class'] .= ' aui-button-subtle';
 
-		return CHtml::htmlButton($this->getLabel(), $options);
+		return $this->renderButtonTag($this->getLabel(), $options);
 	}
 
 	protected function renderButtonTag($label, $options)
