@@ -5,10 +5,17 @@ class AUIActionsColumn extends CDataColumn
 	/**
 	 * @var string default CSS class for actions column
 	 */
-	public $actionsColumnClass = 'aui-compact-button-column';
-
+	public $actionsColumnCSSClass = 'auyii-actions-column';
+    /**
+     * @var string default CSS class for actions links list
+     */
+    public $actionsLinksCSSClass = 'auyii-actions-column-links';
+    /**
+     * @var string default CSS class for collapsed actions menu trigger
+     */
+    public $collapsedMenuTriggerCSSClass = 'auyii-actions-column-cog';
 	/**
-	 * @var array List of action links in the following format:
+	 * @var array List of actions in the following format:
 	 *
 	 *      array(
 	 *          array(
@@ -20,26 +27,32 @@ class AUIActionsColumn extends CDataColumn
 	 *              'urlExpression' => function(){} // string PHP expression or callable with
 	 *                                              // function($data, $row, $column) signature
 	 *                                              // see {@link CComponent::evaluateExpression}
+     *
+     *              'collapse' => true,             // collapse action in an 'cog' menu, true by default.
+     *                                              // works when column $collapse property is set to true.
 	 *
 	 *              'htmlOptions' => array()        // optional, array of HTML options for the action link tag
 	 *          ),
 	 *          ...
 	 *      )
 	 */
-	public $links;
-
-	/**
-	 * @var
-	 */
-	public $cog;
+	public $actions;
+    /**
+     * @var bool collapse actions in an 'cog' menu
+     */
+    public $collapse = false;
+    /**
+     * @var string icon name for 'cog' menu trigger button
+     */
+    public $collapseIcon = 'configure';
 
 
 	public function init()
 	{
 		if (isset($this->htmlOptions['class']))
-			$this->htmlOptions['class'] .= ' ' . $this->actionsColumnClass;
+			$this->htmlOptions['class'] .= ' ' . $this->actionsColumnCSSClass;
 		else
-			$this->htmlOptions['class'] = $this->actionsColumnClass;
+			$this->htmlOptions['class'] = $this->actionsColumnCSSClass;
 
 		parent::init();
 	}
@@ -57,93 +70,236 @@ class AUIActionsColumn extends CDataColumn
 	}
 
 	/**
+     * Render visible and collapsed actions
+     *
 	 * @param $row
 	 * @param $data
 	 * @return string
 	 */
 	protected function renderActions($row, $data)
 	{
-		return $this->renderActionLinks($row, $data);
+		return
+            $this->renderActionLinks($row, $data) .
+            $this->renderCollapsedMenu($row, $data);
 	}
 
-	/**
-	 * Render action links
-	 *
-	 * @param $row
-	 * @param $data
-	 * @return string
-	 */
+    /**
+     * Render action links
+     *
+     * @param $row
+     * @param $data
+     * @return string
+     */
 	protected function renderActionLinks($row, $data)
 	{
+        $actions = $this->getVisibleActions();
+        if (!$actions)
+            return '';
+
 		$actionLinks = '';
+		if ($actions || is_array($actions))
+			foreach ($actions as $action)
+				$actionLinks .= $this->renderActionLink($action, $row, $data);
 
-		if ($this->links || is_array($this->links))
-			foreach ($this->links as $link)
-				$actionLinks .= $this->renderActionLink($link, $row, $data);
-
-		return CHtml::tag('ul', array('class' => 'auyii-actions-column-links'), $actionLinks);
+		return CHtml::tag('ul', array('class' => $this->actionsLinksCSSClass), $actionLinks);
 	}
 
 	/**
 	 * Render action link
 	 *
-	 * @param $link
+	 * @param $action
 	 * @param $row
 	 * @param $data
 	 * @return bool|string
 	 */
-	protected function renderActionLink($link, $row, $data)
+	protected function renderActionLink($action, $row, $data)
 	{
-		if (!$this->isLinkValid($link))
+		if (!$this->isActionValid($action))
 			return false;
 
-		$actionUrl = $this->getLinkActionUrl($link, $row, $data);
+		$actionUrl = $this->getActionUrl($action, $row, $data);
 		if (!$actionUrl)
 			return false;
 
 		return CHtml::tag('li', array(),
 				CHtml::link(
-					$link['label'],
+					$action['label'],
 					$actionUrl,
-					isset($link['htmlOptions']) ? $link['htmlOptions'] : array()
+					isset($action['htmlOptions']) ? $action['htmlOptions'] : array()
 				)
 		);
 	}
 
 	/**
-	 * Tell whether given link options are valid
+	 * Tell whether given action options are valid
 	 *
-	 * @param $link
+	 * @param $action
 	 * @return bool
 	 */
-	protected function isLinkValid($link)
+	protected function isActionValid($action)
 	{
-		return  is_array($link) &&
-				isset($link['label']) &&
+		return  is_array($action) &&
+				isset($action['label']) &&
 				(
-					(isset($link['url']) && is_string($link['url'])) ||
-				    (isset($link['urlExpression']) &&
-						    (is_string($link['urlExpression']) || is_callable($link['urlExpression']))
+					(isset($action['url']) && is_string($action['url'])) ||
+				    (isset($action['urlExpression']) &&
+						    (is_string($action['urlExpression']) || is_callable($action['urlExpression']))
 				    )
 				);
 	}
 
 	/**
-	 * Return link action URL
+	 * Return action link URL
 	 *
-	 * @param $link
+	 * @param $action
 	 * @param $row
 	 * @param $data
 	 * @return bool|mixed
 	 */
-	protected function getLinkActionUrl($link, $row, $data)
+	protected function getActionUrl($action, $row, $data)
 	{
-		if (isset($link['url']))
-			return $link['url'];
+		if (isset($action['url']))
+			return $action['url'];
 
-		if (isset($link['urlExpression']))
-			return $this->evaluateExpression($link['urlExpression'], array('data' => $data, 'row' => $row));
+		if (isset($action['urlExpression']))
+			return $this->evaluateExpression($action['urlExpression'], array('data' => $data, 'row' => $row));
 
 		return false;
 	}
+
+    /**
+     * Render a 'cog' menu
+     *
+     * @param $row
+     * @param $data
+     * @return string
+     */
+    protected function renderCollapsedMenu($row, $data)
+    {
+        if ($this->collapse) {
+            $actions = $this->getCollapsedActions();
+            if ($actions)
+                return $this->renderCollapsedActions($actions, $row, $data);
+        }
+
+        return '';
+    }
+
+    /**
+     * Render a 'cog' menu actions
+     *
+     * @param $actions
+     * @param $row
+     * @param $data
+     * @return string
+     */
+    protected function renderCollapsedActions(&$actions, $row, $data)
+    {
+        $menuId = uniqid('actionsColumn');
+
+        return
+            $this->renderCollapsedMenuTrigger($menuId) .
+            $this->renderCollapsedMenuDropdown($menuId, $actions, $row, $data);
+    }
+
+    /**
+     * Render a 'cog' menu trigger button
+     *
+     * @param $dropdownId
+     * @return mixed
+     */
+    protected function renderCollapsedMenuTrigger($dropdownId)
+    {
+        return $this->grid->widget('aui.widgets.AUIButton', array(
+            'type' => 'subtle',
+            'compact' => true,
+            'dropdown' => $dropdownId,
+            'icon' => $this->grid->widget('aui.widgets.AUIIcon', array('icon' => $this->collapseIcon), true),
+            'htmlOptions' => array(
+                'class' => $this->collapsedMenuTriggerCSSClass
+            )
+        ), true);
+    }
+
+    /**
+     * Render a 'cog' menu dropdown
+     *
+     * @param $id
+     * @param $actions
+     * @param $row
+     * @param $data
+     * @return mixed
+     */
+    protected function renderCollapsedMenuDropdown($id, &$actions, $row, $data)
+    {
+        $actionItems = array();
+        foreach ($actions as $action)
+            $actionItems[] = $this->convertActionToMenuItem($action, $row, $data);
+
+        return $this->grid->widget('aui.widgets.AUIDropdown', array(
+            'id' => $id,
+            'items' => $actionItems
+        ), true);
+    }
+
+    /**
+     * Convert action definition to AUIDropdown menu item definition
+     *
+     * @param $action
+     * @param $row
+     * @param $data
+     * @return array|bool
+     */
+    protected function convertActionToMenuItem($action, $row, $data)
+    {
+        if (!$this->isActionValid($action))
+   			return false;
+
+        $menuItem = array(
+            'title' => $action['label'],
+            'url' => $this->getActionUrl($action, $row, $data)
+        );
+
+        if (isset($action['htmlOptions']) && is_array($action['htmlOptions']))
+            $menuItem = array_merge($menuItem, $action['htmlOptions']);
+
+        return $menuItem;
+    }
+
+    /**
+     * Get actions which may be collapsed
+     *
+     * @return array
+     */
+    protected function getCollapsedActions()
+    {
+        return array_filter($this->actions, array($this, 'isActionCollapsed'));
+    }
+
+    /**
+     * Get actions visible as links
+     *
+     * @return array
+     */
+    protected function getVisibleActions()
+    {
+        if (!$this->collapse)
+            return $this->actions;
+
+        $_this = $this;
+        return array_filter($this->actions, function($action) use($_this) {
+            return !$_this->isActionCollapsed($action);
+        });
+    }
+
+    /**
+     * Tell us whether given action may be collapsed
+     *
+     * @param $action
+     * @return bool
+     */
+    protected function isActionCollapsed($action)
+    {
+        return !isset($action['collapse']) || ($action['collapse'] === true);
+    }
 }

@@ -52,19 +52,25 @@
   }
 }
 
-.auyii-actions-column-links {
-  display: inline;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+.auyii-actions-column {
+  .auyii-actions-column-links {
+    display: inline;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
 
-  &>li {
-    display: inline-block;
+    &>li {
+      display: inline-block;
+    }
+
+    li+li:before {
+      content: "\b7";
+      padding: 0 0.43em;
+    }
   }
 
-  li+li:before {
-    content: "\b7";
-    padding: 0 0.43em;
+  .auyii-actions-column-cog {
+    margin-left: 5px;
   }
 }
 
