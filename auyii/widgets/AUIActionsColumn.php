@@ -7,6 +7,10 @@ class AUIActionsColumn extends CDataColumn
 	 */
 	public $actionsColumnCSSClass = 'auyii-actions-column';
     /**
+     * @var string default CSS class for 'on-hover' actions column
+     */
+    public $onHoverColumnCSSClass = 'auyii-actions-column-hover';
+    /**
      * @var string default CSS class for actions links list
      */
     public $actionsLinksCSSClass = 'auyii-actions-column-links';
@@ -42,17 +46,25 @@ class AUIActionsColumn extends CDataColumn
      */
     public $collapse = false;
     /**
-     * @var string icon name for 'cog' menu trigger button
+     * @var string icon name for 'cog' menu trigger button. See {@link https://docs.atlassian.com/aui/latest/docs/icons.html}
      */
     public $collapseIcon = 'configure';
+    /**
+     * @var bool show actions on table row hover
+     */
+    public $onHover = false;
 
 
 	public function init()
 	{
+        $columnClass = $this->actionsColumnCSSClass;
+        if ($this->onHover)
+            $columnClass .= ' ' . $this->onHoverColumnCSSClass;
+
 		if (isset($this->htmlOptions['class']))
-			$this->htmlOptions['class'] .= ' ' . $this->actionsColumnCSSClass;
+			$this->htmlOptions['class'] .= ' ' . $columnClass;
 		else
-			$this->htmlOptions['class'] = $this->actionsColumnCSSClass;
+			$this->htmlOptions['class'] = $columnClass;
 
 		parent::init();
 	}

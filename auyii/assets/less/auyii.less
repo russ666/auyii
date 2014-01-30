@@ -53,6 +53,10 @@
 }
 
 .auyii-actions-column {
+  padding: 3px 10px !important;
+  vertical-align: top;
+  line-height: 27px;
+
   .auyii-actions-column-links {
     display: inline;
     list-style-type: none;
@@ -71,6 +75,27 @@
 
   .auyii-actions-column-cog {
     margin-left: 5px;
+  }
+}
+
+.auyii-actions-column-hover {
+  .auyii-actions-column-links {
+    display: none;
+  }
+  .auyii-actions-column-cog {
+    display: none;
+    &.active {
+      display: inline-block;
+    }
+  }
+
+  tr:hover & {
+    .auyii-actions-column-links {
+      display: inline;
+    }
+    .auyii-actions-column-cog {
+      display: inline-block;
+    }
   }
 }
 
