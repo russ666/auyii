@@ -148,7 +148,7 @@ class AUIActiveForm extends CActiveForm
 	}
 
 	/**
-	 * @param $buttons
+	 * @param array $buttons
 	 * @param array $htmlOptions
 	 * @return string
 	 */

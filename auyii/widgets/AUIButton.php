@@ -156,11 +156,11 @@ class AUIButton extends CWidget
 		$options['class'] .= ' aui-dropdown2-trigger';
 		$options = array_merge(
 			$options,
-			[
+			array(
 				'aria-owns' => $this->dropdown,
 				'aria-controls' => $this->dropdown,
 				'aria-haspoup' => true
-			]
+            )
 		);
 
 		return $options;

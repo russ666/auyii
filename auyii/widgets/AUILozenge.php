@@ -14,6 +14,10 @@ class AUILozenge extends CWidget
 	 * @var bool render subtle lozenge
 	 */
 	public $subtle;
+    /**
+     * @var array
+     */
+    public $htmlOptions = array();
 
 
 	public function run()
@@ -32,7 +36,7 @@ class AUILozenge extends CWidget
 
 	protected function getRenderOptions()
 	{
-		$class = 'aui-lozenge';
+        $class = 'aui-lozenge';
 
 		if ($this->subtle)
 			$class .= ' aui-lozenge-subtle';
@@ -40,8 +44,10 @@ class AUILozenge extends CWidget
 		if ($this->type)
 			$class .= ' aui-lozenge-' . $this->type;
 
-		return array(
-			'class' => $class
-		);
+        $renderOptions = $this->htmlOptions;
+        $renderOptions['class'] = $class .
+            (isset($renderOptions['class']) ? ' ' . $renderOptions['class'] : '');
+
+		return $renderOptions;
 	}
 }
