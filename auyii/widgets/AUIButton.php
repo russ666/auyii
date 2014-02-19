@@ -131,9 +131,9 @@ class AUIButton extends CWidget
 
 	protected function getOptions()
 	{
-		$options = is_array($this->htmlOptions) ? $this->htmlOptions : array();
+		$options = array();
 
-		$options['class'] = 'aui-button' . (isset($options['class']) ? ' '.$options['class'] : '');
+		$options['class'] = 'aui-button';
 		$options['id'] = $this->id;
 
 		if ($this->pressed)
@@ -147,6 +147,14 @@ class AUIButton extends CWidget
 
 		if ($this->dropdown)
 			$options = $this->addDropDownOptions($options);
+
+        if (is_array($this->htmlOptions) && $this->htmlOptions) {
+            $class = $options['class'] .
+                (isset($this->htmlOptions['class']) ? ' ' . $this->htmlOptions['class'] : '');
+
+            $options = array_merge($options, $this->htmlOptions);
+            $options['class'] = $class;
+        }
 
 		return $options;
 	}

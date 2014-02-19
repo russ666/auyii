@@ -18,6 +18,10 @@ class AUIActionsColumn extends CDataColumn
      * @var string default CSS class for collapsed actions menu trigger
      */
     public $collapsedMenuTriggerCSSClass = 'auyii-actions-column-cog';
+    /**
+     * @var string default CSS class for arrowless collapsed actions menu trigger
+     */
+    public $collapsedMenuArrowLessCSSClass = 'ayii-dropdown2-trigger-arrowless';
 	/**
 	 * @var array List of actions in the following format:
 	 *
@@ -49,6 +53,10 @@ class AUIActionsColumn extends CDataColumn
      * @var string icon name for 'cog' menu trigger button. See {@link https://docs.atlassian.com/aui/latest/docs/icons.html}
      */
     public $collapseIcon = 'configure';
+    /**
+     * @var bool hide dropdown arrow from 'cog' menu trigger button
+     */
+    public $collapseArrowLess = false;
     /**
      * @var bool show actions on table row hover
      */
@@ -222,13 +230,17 @@ class AUIActionsColumn extends CDataColumn
      */
     protected function renderCollapsedMenuTrigger($dropdownId)
     {
+        $triggerCSSClass = $this->collapsedMenuTriggerCSSClass;
+        if ($this->collapseArrowLess)
+            $triggerCSSClass .= ' ' . $this->collapsedMenuArrowLessCSSClass;
+
         return $this->grid->widget('aui.widgets.AUIButton', array(
             'type' => 'subtle',
             'compact' => true,
             'dropdown' => $dropdownId,
             'icon' => $this->grid->widget('aui.widgets.AUIIcon', array('icon' => $this->collapseIcon), true),
             'htmlOptions' => array(
-                'class' => $this->collapsedMenuTriggerCSSClass
+                'class' => $triggerCSSClass
             )
         ), true);
     }
