@@ -145,7 +145,7 @@ class AUIActionsColumn extends CDataColumn
 				CHtml::link(
 					$action['label'],
 					$actionUrl,
-					isset($action['htmlOptions']) ? $action['htmlOptions'] : array()
+					$this->getActionHtmlOptions($action, $row, $data)
 				)
 		);
 	}
@@ -186,6 +186,50 @@ class AUIActionsColumn extends CDataColumn
 
 		return false;
 	}
+
+    /**
+     * Return action HTML options
+     *
+     * @param $action
+     * @param $row
+     * @param $data
+     * @return array
+     */
+    protected function getActionHtmlOptions($action, $row, $data)
+    {
+        $options = array();
+
+        if (isset($action['htmlOptions']) && is_array($action['htmlOptions']))
+            foreach ($action['htmlOptions'] as $attribute => $value)
+                $options[$attribute] = is_callable($value) ?
+                    $this->evaluateExpression($value, array('data' => $data, 'row' => $row)) :
+                    $value;
+
+        return $options;
+    }
+
+    /**
+     * Convert action definition to AUIDropdown menu item definition
+     *
+     * @param $action
+     * @param $row
+     * @param $data
+     * @return array|bool
+     */
+    protected function convertActionToMenuItem($action, $row, $data)
+    {
+        if (!$this->isActionValid($action))
+   			return false;
+
+        $menuItem = array(
+            'title' => $action['label'],
+            'url' => $this->getActionUrl($action, $row, $data)
+        );
+
+        $menuItem = array_merge($menuItem, $this->getActionHtmlOptions($action, $row, $data));
+
+        return $menuItem;
+    }
 
     /**
      * Render a 'cog' menu
@@ -266,29 +310,6 @@ class AUIActionsColumn extends CDataColumn
         ), true);
     }
 
-    /**
-     * Convert action definition to AUIDropdown menu item definition
-     *
-     * @param $action
-     * @param $row
-     * @param $data
-     * @return array|bool
-     */
-    protected function convertActionToMenuItem($action, $row, $data)
-    {
-        if (!$this->isActionValid($action))
-   			return false;
-
-        $menuItem = array(
-            'title' => $action['label'],
-            'url' => $this->getActionUrl($action, $row, $data)
-        );
-
-        if (isset($action['htmlOptions']) && is_array($action['htmlOptions']))
-            $menuItem = array_merge($menuItem, $action['htmlOptions']);
-
-        return $menuItem;
-    }
 
     /**
      * Get actions which may be collapsed
