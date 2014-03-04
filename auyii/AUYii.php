@@ -23,6 +23,7 @@ class AUYii extends CApplicationComponent
 		'lozenge' => 'AUILozenge',
 		'pageHeader' => 'AUIPageHeader',
 		'tabs' => 'AUITabs',
+        'toolbar' => 'AUIToolbar',
 		'verticalNav' => 'AUIVerticalNav'
 	);
 

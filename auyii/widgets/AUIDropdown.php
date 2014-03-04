@@ -14,6 +14,10 @@ class AUIDropdown extends CWidget
 	 * @var array dropdown menu sections
 	 */
 	public $sections;
+    /**
+     * @var array menu item options which should not be passed as menu item HTML tag attributes
+     */
+    protected $itemOptions = array('title', 'url', 'type', 'disabled', 'checked', 'interactive', 'raw');
 
 
 	public function run()
@@ -210,6 +214,6 @@ class AUIDropdown extends CWidget
 	 */
 	protected function getItemTagOptions($item)
 	{
-		return array_diff_key($item, array_flip(array('title', 'url', 'type', 'disabled', 'checked')));
+		return array_diff_key($item, array_flip($this->itemOptions));
 	}
 }
