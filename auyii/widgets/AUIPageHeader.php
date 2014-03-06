@@ -47,7 +47,7 @@ class AUIPageHeader extends CWidget
 	 *
 	 * @return string
 	 */
-	public function renderPageHeader()
+	protected function renderPageHeader()
 	{
 		$headerOptions = CMap::mergeArray(
 			array('class' => 'aui-page-header'),
@@ -68,7 +68,7 @@ class AUIPageHeader extends CWidget
 	 *
 	 * @return string
 	 */
-	public function renderImage()
+	protected function renderImage()
 	{
 		if (!$this->image)
 			return '';
@@ -85,7 +85,7 @@ class AUIPageHeader extends CWidget
 	 *
 	 * @return string
 	 */
-	public function renderMainHeader()
+	protected function renderMainHeader()
 	{
 		return CHtml::tag(
 			'div',
@@ -99,7 +99,7 @@ class AUIPageHeader extends CWidget
 	 *
 	 * @return string
 	 */
-	public function renderHeaderTitle()
+	protected function renderHeaderTitle()
 	{
 		$headerSize = $this->size && ctype_digit((string)$this->size) ? $this->size : 1;
 		return CHtml::tag('h' . $headerSize, array(), $this->title);
@@ -110,7 +110,7 @@ class AUIPageHeader extends CWidget
 	 *
 	 * @return string
 	 */
-	public function renderBreadcrumbs()
+	protected function renderBreadcrumbs()
 	{
 		if (!is_array($this->breadcrumbs))
 			return '';
@@ -133,7 +133,7 @@ class AUIPageHeader extends CWidget
 	 * @param string $url
 	 * @return string
 	 */
-	public function renderBreadcrumbLink($title, $url)
+	protected function renderBreadcrumbLink($title, $url)
 	{
 		$breadcrumbOptions = array();
 
@@ -148,11 +148,11 @@ class AUIPageHeader extends CWidget
 	}
 
 	/**
-	 * Render action buttons
+	 * Render page actions
 	 *
 	 * @return string
 	 */
-	public function renderActions()
+	protected function renderActions()
 	{
 		if (!$this->actions || !is_array($this->actions))
 			return '';
@@ -160,11 +160,29 @@ class AUIPageHeader extends CWidget
 		return CHtml::tag(
 			'div',
 			array('class' => 'aui-page-header-actions'),
-			CHtml::tag(
-				'div',
-				array('class' => 'aui-buttons'),
-				implode('', $this->actions)
-			)
+            $this->renderActionButtons($this->actions)
 		);
 	}
+
+    /**
+     * Render page action buttons
+     *
+     * @param array $buttons
+     * @return string
+     */
+    protected function renderActionButtons(array $buttons)
+    {
+        $buttonsRendered = '';
+
+        foreach ($buttons as $button)
+            $buttonsRendered .= is_string($button) ?
+                $button :
+                $this->renderActionButtons($button);
+
+        return CHtml::tag(
+            'div',
+            array('class' => 'aui-buttons'),
+            $buttonsRendered
+        );
+    }
 }
