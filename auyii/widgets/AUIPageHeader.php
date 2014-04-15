@@ -14,7 +14,8 @@ class AUIPageHeader extends CWidget
 	 * array(
 			'About' => '/about',
 	 *      'Team' => '/team',
-	 *      'Joe' => '' (no link rendered for empty URL)
+	 *      'Joe' => '' (no link rendered for empty URL),
+     *      'Raw <strong>breadcrumb</strong> content'
 	 * )
 	 */
 	public $breadcrumbs;
@@ -116,8 +117,11 @@ class AUIPageHeader extends CWidget
 			return '';
 
 		$breadcrumbs = '';
-		foreach ($this->breadcrumbs as $title => $url)
-			$breadcrumbs .= $this->renderBreadcrumbLink($title, $url);
+		foreach ($this->breadcrumbs as $key => $breadcrumb)
+			$breadcrumbs .= is_int($key) ?
+                $this->renderBreadcrumb($breadcrumb) :
+                $this->renderBreadcrumbLink($key, $breadcrumb);
+
 
 		return CHtml::tag(
 			'ol',
@@ -129,23 +133,23 @@ class AUIPageHeader extends CWidget
 	/**
 	 * Render breadcrumbs item
 	 *
-	 * @param string $title
+	 * @param string $content
 	 * @param string $url
 	 * @return string
 	 */
-	protected function renderBreadcrumbLink($title, $url)
+	protected function renderBreadcrumbLink($content, $url)
 	{
-		$breadcrumbOptions = array();
+        $breadcrumb = $url ?
+            CHtml::link($content, $url) :
+            $content;
 
-		if ($url) {
-			$breadcrumb = CHtml::link($title, $url);
-		} else {
-			$breadcrumb = $title;
-			$breadcrumbOptions['class'] = 'aui-nav-selected';
-		}
-
-		return CHtml::tag('li', $breadcrumbOptions, $breadcrumb);
+        return $this->renderBreadcrumb($breadcrumb);
 	}
+
+    protected function renderBreadcrumb($content)
+    {
+        return CHtml::tag('li', [], $content);
+    }
 
 	/**
 	 * Render page actions
