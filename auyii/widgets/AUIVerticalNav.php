@@ -101,14 +101,21 @@ class AUIVerticalNav extends CWidget
 		if (!$this->validateNavItem($item))
 			return false;
 
-		$itemOptions = array();
+		$itemOptions = $this->getNavItemOptions($item);
+        $itemLinkOptions = $this->getNavItemLinkOptions($item);
+
+        $activeClass = 'aui-nav-selected';
+
 		if ($this->isItemActive($item))
-			$itemOptions['class'] = 'aui-nav-selected';
+            if (isset($itemOptions['class']) && is_string($itemOptions['class']))
+                $itemOptions['class'] .= ' ' . $activeClass;
+            else
+                $itemOptions['class'] = $activeClass;
 
 		return CHtml::tag(
 			'li',
 			$itemOptions,
-			CHtml::link($item['label'], $item['url'])
+			CHtml::link($item['label'], $item['url'], $itemLinkOptions)
 		);
 	}
 
@@ -122,6 +129,38 @@ class AUIVerticalNav extends CWidget
 	{
 		return isset($item['label']) && isset($item['url']);
 	}
+
+    /**
+     * Fetch navigation item html options
+     *
+     * @param $item
+     * @return array
+     */
+    protected function getNavItemOptions($item)
+    {
+        $result = array();
+
+        if (isset($item['htmlOptions']) && is_array($item['htmlOptions']))
+            $result = $item['htmlOptions'];
+
+        return $result;
+    }
+
+    /**
+     * Fetch navigation item link html options
+     *
+     * @param $item
+     * @return array
+     */
+    protected function getNavItemLinkOptions($item)
+    {
+        $result = array();
+
+        if (isset($item['linkHtmlOptions']) && is_array($item['linkHtmlOptions']))
+            $result = $item['linkHtmlOptions'];
+
+        return $result;
+    }
 
 	/**
 	 * Check if navigation item is active
